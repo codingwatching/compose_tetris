@@ -1,0 +1,127 @@
+name: create release
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - "**/workflows-trigger.properties"
+
+jobs:
+
+  current-time:
+    runs-on: ubuntu-latest
+    outputs:
+      currentTime: ${{steps.currentTime.outputs.formattedTime}}
+    steps:
+      - id: currentTime
+        uses: josStorer/get-current-time@v2
+        with:
+          format: YYYY.MM.DD
+          utcOffset: "+08:00"
+
+  create-win-package:
+    runs-on: windows-latest
+    name: create win package
+    needs: current-time
+
+    steps:
+      - name: setup jdk
+        uses: actions/setup-java@v4
+        with:
+          java-version: "18"
+          distribution: "corretto"
+          architecture: x64
+
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: assembleRelease
+        run: ./gradlew composeApp:assembleRelease
+
+      - name: packageReleaseMsi
+        run: ./gradlew composeApp:packageReleaseMsi
+
+      - name: rename File
+        run: |
+          mv ./composeApp/build/compose/binaries/main-release/msi/compose_tetris-1.0.0.msi ./composeApp/build/compose/binaries/main-release/msi/compose_tetris-windows-x64.msi
+
+      - name: packageReleaseAppImage
+        run: ./gradlew packageReleaseAppImage
+
+      - name: zip appImage
+        uses: thedoctor0/zip-release@0.7.6
+        with:
+          type: "zip"
+          filename: "compose_tetris-windows-x64.zip"
+          directory: "./composeApp/build/compose/binaries/main-release/app"
+
+      - name: create a release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "**/compose_tetris-windows-x64.msi,**/compose_tetris-windows-x64.zip"
+          body: "create by workflows"
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: false
+          tag: ${{needs.current-time.outputs.currentTime}}
+          name: ${{needs.current-time.outputs.currentTime}}
+          token: ${{secrets.ACTION_TOKEN}}
+
+  create-mac-package:
+    strategy:
+      matrix:
+        os: [ macos-13, macos-14 ]
+    runs-on: ${{ matrix.os }}
+    name: create mac package
+    needs: current-time
+
+    steps:
+      - if: matrix.os == 'macos-13'
+        name: setup jdk
+        uses: actions/setup-java@v4
+        with:
+          java-version: "18"
+          distribution: "corretto"
+          architecture: x64
+
+      - if: matrix.os == 'macos-14'
+        name: setup jdk
+        uses: actions/setup-java@v4
+        with:
+          java-version: "18"
+          distribution: "corretto"
+          architecture: aarch64
+
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: packageReleaseDmg
+        run: ./gradlew packageReleaseDmg
+
+      - if: matrix.os == 'macos-13'
+        name: rename File
+        run: |
+          mv /Users/runner/work/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.dmg /Users/runner/work/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-x64.dmg
+
+      - if: matrix.os == 'macos-14'
+        name: rename File
+        run: |
+          mv /Users/runner/work/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.dmg /Users/runner/work/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-arm64.dmg
+
+      - name: create a release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "**/*.dmg"
+          body: "create by workflows"
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: false
+          tag: ${{needs.current-time.outputs.currentTime}}
+          name: ${{needs.current-time.outputs.currentTime}}
+          token: ${{secrets.ACTION_TOKEN}}

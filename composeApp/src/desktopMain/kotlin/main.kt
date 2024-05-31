@@ -2,11 +2,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -37,7 +33,7 @@ fun main() = application {
     Window(
         title = "compose_tetris",
         resizable = false,
-        icon = painterResource("/compose_tetris.ico"),
+        icon = painterResource("/windows_launch_icon.ico"),
         state = rememberWindowState(
             size = preferredWindowSize(),
             position = WindowPosition.Aligned(alignment = Alignment.Center)
