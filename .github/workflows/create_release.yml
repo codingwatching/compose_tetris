@@ -41,12 +41,16 @@ jobs:
       - name: assembleRelease
         run: ./gradlew composeApp:assembleRelease
 
+      - name: packageReleaseExe
+        run: ./gradlew composeApp:packageReleaseExe
+
       - name: packageReleaseMsi
         run: ./gradlew composeApp:packageReleaseMsi
 
       - name: rename File
         run: |
           mv ./composeApp/build/compose/binaries/main-release/msi/compose_tetris-1.0.0.msi ./composeApp/build/compose/binaries/main-release/msi/compose_tetris-windows-x64.msi
+          mv ./composeApp/build/compose/binaries/main-release/exe/compose_tetris-1.0.0.exe ./composeApp/build/compose/binaries/main-release/exe/compose_tetris-windows-x64.exe
 
       - name: packageReleaseAppImage
         run: ./gradlew packageReleaseAppImage
@@ -61,7 +65,7 @@ jobs:
       - name: create a release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "**/*.apk,**/compose_tetris-windows-x64.msi,**/compose_tetris-windows-x64.zip"
+          artifacts: "**/*.apk,**/compose_tetris-windows-x64.exe,**/compose_tetris-windows-x64.msi,**/compose_tetris-windows-x64.zip"
           body: "create by workflows"
           allowUpdates: true
           artifactErrorsFailBuild: true
@@ -104,25 +108,20 @@ jobs:
       - name: packageReleaseDmg
         run: ./gradlew packageReleaseDmg
 
-      - name: packageReleasePkg
-        run: ./gradlew packageReleasePkg
-
       - if: matrix.os == 'macos-13'
         name: rename File
         run: |
           mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.dmg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-x64.dmg
-          mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.pkg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-x64.pkg
 
       - if: matrix.os == 'macos-14'
         name: rename File
         run: |
           mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.dmg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-arm64.dmg
-          mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.pkg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-arm64.pkg
 
       - name: create a release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "**/*.dmg,**/*.pkg"
+          artifacts: "**/*.dmg"
           body: "create by workflows"
           allowUpdates: true
           artifactErrorsFailBuild: true

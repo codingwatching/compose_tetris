@@ -126,7 +126,7 @@ compose.desktop {
             modules = arrayListOf("java.desktop")
             when (currentOS) {
                 OS.Windows -> {
-                    targetFormats(TargetFormat.AppImage, TargetFormat.Msi)
+                    targetFormats(TargetFormat.AppImage, TargetFormat.Exe, TargetFormat.Msi)
                 }
 
                 OS.MacOS -> {
