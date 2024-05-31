@@ -104,20 +104,25 @@ jobs:
       - name: packageReleaseDmg
         run: ./gradlew packageReleaseDmg
 
+      - name: packageReleasePkg
+        run: ./gradlew packageReleasePkg
+
       - if: matrix.os == 'macos-13'
         name: rename File
         run: |
           mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.dmg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-x64.dmg
+          mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.pkg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-x64.pkg
 
       - if: matrix.os == 'macos-14'
         name: rename File
         run: |
           mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.dmg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-arm64.dmg
+          mv /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-1.0.0.pkg /Users/runner/work/compose_tetris/compose_tetris/composeApp/build/compose/binaries/main-release/dmg/compose_tetris-macos-arm64.pkg
 
       - name: create a release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "**/*.dmg"
+          artifacts: "**/*.dmg,**/*.pkg"
           body: "create by workflows"
           allowUpdates: true
           artifactErrorsFailBuild: true

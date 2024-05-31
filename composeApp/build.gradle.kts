@@ -124,10 +124,18 @@ compose.desktop {
         nativeDistributions {
             includeAllModules = false
             modules = arrayListOf("java.desktop")
-            if (currentOS == OS.Windows) {
-                targetFormats(TargetFormat.AppImage, TargetFormat.Msi)
-            } else {
-                targetFormats(TargetFormat.Dmg)
+            when (currentOS) {
+                OS.Windows -> {
+                    targetFormats(TargetFormat.AppImage, TargetFormat.Msi)
+                }
+
+                OS.MacOS -> {
+                    targetFormats(TargetFormat.Dmg, TargetFormat.Pkg)
+                }
+
+                OS.Linux -> {
+                    targetFormats(TargetFormat.Deb, TargetFormat.Rpm)
+                }
             }
             packageName = mPackageName
             packageVersion = "1.0.0"
