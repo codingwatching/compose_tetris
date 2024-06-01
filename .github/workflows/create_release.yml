@@ -10,6 +10,7 @@ jobs:
 
   current-time:
     runs-on: ubuntu-latest
+    name: get current time
     outputs:
       currentTime: ${{steps.currentTime.outputs.formattedTime}}
     steps:
@@ -19,9 +20,9 @@ jobs:
           format: YYYY.MM.DD
           utcOffset: "+08:00"
 
-  create-win-package:
+  create-windows-package:
     runs-on: windows-latest
-    name: create win package
+    name: create windows package
     needs: current-time
 
     steps:
@@ -29,7 +30,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "18"
-          distribution: "corretto"
+          distribution: "oracle"
           architecture: x64
 
       - name: checkout
@@ -39,13 +40,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: assembleRelease
-        run: ./gradlew composeApp:assembleRelease
+        run: ./gradlew assembleRelease
 
       - name: packageReleaseExe
-        run: ./gradlew composeApp:packageReleaseExe
+        run: ./gradlew packageReleaseExe
 
       - name: packageReleaseMsi
-        run: ./gradlew composeApp:packageReleaseMsi
+        run: ./gradlew packageReleaseMsi
 
       - name: rename File
         run: |
@@ -74,12 +75,12 @@ jobs:
           name: ${{needs.current-time.outputs.currentTime}}
           token: ${{secrets.ACTION_TOKEN}}
 
-  create-mac-package:
+  create-macos-package:
     strategy:
       matrix:
         os: [ macos-13, macos-14 ]
     runs-on: ${{ matrix.os }}
-    name: create mac package
+    name: create macos package
     needs: current-time
 
     steps:
@@ -88,7 +89,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "18"
-          distribution: "corretto"
+          distribution: "oracle"
           architecture: x64
 
       - if: matrix.os == 'macos-14'
@@ -96,7 +97,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: "18"
-          distribution: "corretto"
+          distribution: "oracle"
           architecture: aarch64
 
       - name: checkout
